@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: shipvis
+      POSTGRES_PASSWORD: shipvis
+      POSTGRES_DB: shipvis
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shipvis -d shipvis"]
+      interval: 5s
+      timeout: 3s
+      retries: 8
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://shipvis:shipvis@db:5432/shipvis
+      API_KEY: teaching-demo-key
+      DELAY_CHECK_MINUTES: "2"
+      PORT: "8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
