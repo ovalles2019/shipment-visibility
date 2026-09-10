@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dispatch board — shipment visibility</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Special+Elite&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="desk">
+    <header class="mast">
+      <div>
+        <p class="desk-id">ShipVis · control tower</p>
+        <h1>Dispatch board</h1>
+      </div>
+      <div class="mast-actions">
+        <label class="key-field">
+          API key
+          <input id="apiKey" type="password" value="teaching-demo-key" autocomplete="off" />
+        </label>
+        <button type="button" id="btnLesson">How this works</button>
+        <button type="button" class="primary" id="btnIngest">Ingest 214</button>
+      </div>
+    </header>
+
+    <section class="kpis" id="kpis"></section>
+
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="Search PRO, shipper, consignee, PO" />
+      <div class="filters" id="filters">
+        <button type="button" data-bucket="" class="active">All</button>
+        <button type="button" data-bucket="in_transit">In transit</button>
+        <button type="button" data-bucket="delayed">Delayed</button>
+        <button type="button" data-bucket="delivered">Delivered</button>
+      </div>
+    </section>
+
+    <main class="board">
+      <aside class="board-list">
+        <div class="list-head">
+          <span>Active bills</span>
+          <button type="button" id="btnRefresh">Refresh</button>
+        </div>
+        <ul id="shipments"></ul>
+      </aside>
+      <section class="board-detail" id="detail">
+        <p class="empty">Select a shipment to read its waybill and event tape.</p>
+      </section>
+    </main>
+
+    <aside class="alerts">
+      <div class="list-head"><span>Delay alerts</span></div>
+      <ul id="alerts"></ul>
+    </aside>
+  </div>
+
+  <dialog id="ingestDialog">
+    <form method="dialog" class="sheet">
+      <h2>Ingest EDI 214</h2>
+      <p>Paste a carrier status message, or drop in one of the teaching samples.</p>
+      <div class="sample-row" id="sampleButtons"></div>
+      <textarea id="ediInput" spellcheck="false" placeholder="ISA*00* ... ST*214* ..."></textarea>
+      <div class="sheet-actions">
+        <button type="button" value="cancel" id="btnCancelIngest">Cancel</button>
+        <button type="button" class="primary" id="btnSubmitIngest">Parse &amp; store</button>
+      </div>
+      <p class="form-error" id="ingestError" hidden></p>
+    </form>
+  </dialog>
+
+  <dialog id="lessonDialog">
+    <article class="sheet lesson">
+      <h2>What you are looking at</h2>
+      <ol>
+        <li><strong>Ingest</strong> — an EDI 214 is the carrier’s status fax, in machine form. Cloud analog: S3 inbound bucket + event.</li>
+        <li><strong>Parse</strong> — we pull PRO, parties, promised date, and AT7 events. Cloud analog: Lambda / worker.</li>
+        <li><strong>Store</strong> — one shipment row, many events. Cloud analog: RDS.</li>
+        <li><strong>API</strong> — the dashboard is just another client of <code>/api/shipments</code>.</li>
+        <li><strong>Alerts</strong> — missed promise or carrier delay code A9. Cloud analog: EventBridge + SNS/SES.</li>
+      </ol>
+      <p>Walk these in order with the README lesson plan. Then open <code>docs/ARCHITECTURE.md</code> for scale, security, availability, and cost.</p>
+      <button type="button" id="btnCloseLesson">Back to the board</button>
+    </article>
+  </dialog>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
